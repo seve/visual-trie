@@ -13,13 +13,20 @@ export default class Trie {
 
   addWord(word) {
     let currNode = this.root;
-    const letterIter = word.entries();
-    while (!letterIter.done) {
-      const [i, letter] = letterIter.value;
+    console.log(word.split(''));
+    
+    const letterIter = word.split('').entries();
+    let letterResult = letterIter.next();       
+    while (!letterResult.done) {
+      const [i, letter] = letterResult.value;
+      console.log('test')
       let foundLetter = false;
+      console.log(this.dict);
+      console.log(this.dict[currNode]);
       const childIter = this.dict[currNode].entries();
-      while (!childIter.done) {
-        const [j, node] = childIter.value;
+      let childResult = childIter.next();
+      while (!childResult.done) {
+        const [j, node] = childResult.value;
         if (node[0] === letter) {
           if (letter === word.length - 1 && !node[2]) {
             this.dict[currNode][j] = [currNode[0], currNode[1], true];
@@ -32,7 +39,7 @@ export default class Trie {
           foundLetter = true;
           break;
         }
-        childIter.next();
+        childResult = childIter.next();
       }
       if (!foundLetter) {
         let newNode;
@@ -46,7 +53,7 @@ export default class Trie {
         this.dict[newNode] = [];
         currNode = newNode;
       }
-      letterIter.next();
+      letterResult = letterIter.next();
     }
   }
 
@@ -65,7 +72,7 @@ export default class Trie {
     const words = [];
     let currNode = this.root;
 
-    prefix.forEach((letter) => {
+    prefix.split('').forEach((letter) => {
       let foundLetter = false;
 
       this.dict[currNode].forEach((node) => {
