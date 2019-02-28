@@ -7,7 +7,8 @@ export default class Trie extends Component {
     this.state = {
       root: [false, 0, false],
       id: 1,
-      dict: []
+      dict: [],
+      childrenPerLevel: []
     };
     this.state.dict[this.state.root] = [];
   }
@@ -71,21 +72,6 @@ export default class Trie extends Component {
         } else {
           newNode = [letter, this.state.id, false];
         }
-        console.log('ref', this.refs)
-        d3.select(this.refs.svg).append("circle")
-            .attr("cx", 30)
-            .attr("cy", 30)
-            .attr("r", 20)
-            .style("fill", "white")
-            .style("stroke-width", 2)
-            .style('stroke', 'black');
-        d3.select(this.refs.svg).append("text")
-        .attr("x", 251)
-        .attr("y", 35)
-        .text(letter)
-        .style("font-size", "25px")
-        .style("fill", "black")
-        
         this.setState({ id: this.state.id + 1 })
         console.log("about to add node");
         /* eslint-disable-next-line no-loop-func*/
@@ -96,17 +82,35 @@ export default class Trie extends Component {
           console.log("state.dict[currNode]", state.dict[currNode]);
           state.dict[currNode].push(newNode)
           console.log('in set state', state.dict);
-          
+          state.dict[newNode] = [];
+          if(state.childrenPerLevel[i]){
+            state.childrenPerLevel[i] += 1;
+          } else {
+            state.childrenPerLevel[i] = 1
+          }
           return { dict: state.dict } 
         }
         this.setState(updateDict(this.state));
         console.log('saved in dict', this.state.dict);
+        console.log('num children', this.state.childrenPerLevel)
+        console.log('ref', this.refs)
+        d3.select(this.refs.svg).append("circle")
+            .attr("cx", 60 * (this.state.childrenPerLevel[i]))
+            .attr("cy", 50 * (i + 1))
+            .attr("r", 20)
+            .style("fill", "white")
+            .style("stroke-width", 2)
+            .style('stroke', 'black');
+        d3.select(this.refs.svg).append("text")
+        .attr("x", 55 * (this.state.childrenPerLevel[i]))
+        .attr("y", 50 * (i + 1))
+        .text(letter)
+        .style("font-size", "25px")
+        .style("fill", "black")
+        
+
         
         // this.state.dict[currNode].push(newNode);
-        this.setState((state) => {
-          state.dict[newNode] = []
-          return { dict: state.dict }
-        })
         // this.state.dict[newNode] = [];
         currNode = newNode;
         console.log("currNode", currNode);
@@ -127,7 +131,11 @@ export default class Trie extends Component {
   }
 
   componentDidMount() {
-    this.addWord('s');
+    this.addWord('test')
+    this.addWord('ternary')
+    this.addWord('testical')
+    this.addWord('terrible')
+    this.addWord('tim')
   }
 
   autocomplete(prefix) {
@@ -158,7 +166,7 @@ export default class Trie extends Component {
     console.log("render");
     
     return (
-      <svg width="760" height="200" id="trie" ref="svg">
+      <svg width="760" height="800" id="trie" ref="svg">
       </svg>
     )
   }
