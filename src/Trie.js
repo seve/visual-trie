@@ -69,7 +69,6 @@ export default class Trie extends Component {
         } else {
           newNode = [letter, this.state.id, false];
         }
-        console.log("id before:", this.state.id);
         
         const updateId = (state) => {
           state.id += 1
@@ -78,7 +77,6 @@ export default class Trie extends Component {
         }
         this.setState(updateId(this.state));
 
-        console.log("id after:", this.state.id);
         
         /* eslint-disable-next-line no-loop-func*/
         const updateDict = (state) => {
@@ -133,22 +131,30 @@ export default class Trie extends Component {
         //          entire level as 100% width. Once implemented consider
         //          switching to giving each parent node a specified 
         //          children width.  Then use that as 100%
+        let newNumOnLevel = 1
+        let counter = 1
         if(this.state.renderedNodes[level]){
-          const newNumOnLevel = this.state.renderedNodes[level].length + 1
-        } else {
-          const newNumOnLevel = 1
+          newNumOnLevel += this.state.renderedNodes[level].length
+          this.state.renderedNodes[level].forEach((item) => {
+            item[1].attr("cx", (1000 - (40 * newNumOnLevel))/(newNumOnLevel + 1) * counter)
+            item[1].attr("cy", 50 * (level + 2))
+          })
         }
+
         let color = "#f3f3f3ff"
         if (node[2]) {
           color = "#fce5cdff"
         }
+
+        // TODO: Find the right alogrithm for finding the x values
         let circle = d3.select(this.refs.svg).append("circle")
-            .attr("cx", 60 * (this.state.renderedNodes[level].length))
-            .attr("cy", 50 * (level + 2))
-            .attr("r", 20)
-            .style("fill", color);
+          .attr("cx", (1000 - (40 * newNumOnLevel))/(newNumOnLevel + 1) * counter)
+          .attr("cy", 50 * (level + 2))
+          .attr("r", 20)
+          .style("fill", color);
+        
         let text = d3.select(this.refs.svg).append("text")
-          .attr("x", -12 + 60 * (this.state.renderedNodes[level].length))
+          .attr("x", (1000 - (40 * newNumOnLevel))/(newNumOnLevel + 1) * counter)
           .attr("y", 5 + 50 * (level + 2))
           .text("'" + node[0] + "'")
           .style("font-size", "25px")
@@ -158,7 +164,7 @@ export default class Trie extends Component {
           if(state.renderedNodes[level]){
             state.renderedNodes[level].push([node, circle, text])
           } else {
-            state.renderedNodes[level] =[node, circle, text] 
+            state.renderedNodes[level] =[[node, circle, text]]
           }
           return {renderedNodes: state.renderedNodes};
         });
@@ -168,22 +174,20 @@ export default class Trie extends Component {
 
   componentDidMount() {
     d3.select(this.refs.svg).append("circle")
-            .attr("cx", 60 * 3)
-            .attr("cy", 50)
+            .attr("cx", (1000 - (40))/2 )
+            .attr("cy", 55)
             .attr("r", 20)
             .style("fill", "#f3f3f3ff");
         d3.select(this.refs.svg).append("text")
-        .attr("x", -5 + 60 * 3)
-        .attr("y", 5 + 50)
+        .attr("x", (1000 - (40))/2 )
+        .attr("y", 55 )
         .text("''")
         .style("font-size", "25px")
         .style("fill", "black")
-    this.addWord('matt')
-    this.addWord('mattress')
-    this.addWord('matthew')
-    this.addWord('matilda')
-    this.addWord('mathias')
-    this.addWord('matromoney')
+    this.addWord('seve')
+    this.addWord('save')
+    this.addWord('seven')
+    this.addWord('song')
     console.log(this.state.dict);
     
   }
@@ -216,7 +220,7 @@ export default class Trie extends Component {
     console.log("render");
     
     return (
-      <svg width="760" height="800" id="trie" ref="svg">
+      <svg width="1000" height="800" id="trie" ref="svg">
       </svg>
     )
   }
