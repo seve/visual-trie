@@ -137,30 +137,25 @@ export default class Trie extends Component {
         //          children width.  Then use that as 100%
         let newNumOnLevel = 1
         let counter = 1
-        let availableSpace = (CANVAS_WIDTH) / (newNumOnLevel + 1)
-        let offsetX = 0
-        console.log("renderedNodes before adding:", this.state.renderedNodes);
-        
-        if(this.state.renderedNodes[level]){
-          console.log('length', this.state.renderedNodes[level]);
-
-          console.log('new length:', Object.keys(this.state.renderedNodes[level]).length)
-          
+        let availableSpace = (CANVAS_WIDTH) / (newNumOnLevel + 1)        
+        if(this.state.renderedNodes[level]){          
           newNumOnLevel += Object.keys(this.state.renderedNodes[level]).length
           availableSpace = (CANVAS_WIDTH) / (newNumOnLevel + 1)
-          offsetX = 0
           const updateRenderedNodes = (state) =>{
-            state.renderedNodes[level].forEach((item) => {
+            Object.keys(state.renderedNodes[level]).forEach((key) => {
+              const item = state.renderedNodes[level][key]
               console.log('rerendering:', item[2].text());
+              console.log('counter:', counter);
+              
 
               const renderedParent = this.state.renderedNodes[level - 1][item[4]][1]
               
-              const circleX = availableSpace * counter - offsetX
+              const circleX = availableSpace * counter
               const circleY = VERTICAL_SPACING * (level + 1)
               
               item[1].attr("cx", circleX)
               item[1].attr("cy", circleY)
-              item[2].attr("x", availableSpace * counter - 10  - offsetX)
+              item[2].attr("x", availableSpace * counter - 10 )
               item[2].attr("y", VERTICAL_SPACING * (level + 1))
               item[3].attr("x1", renderedParent.attr('cx')).attr("y1", renderedParent.attr('cy'))
               item[3].attr("x2", item[1].attr("cy")).attr("y2", item[1].attr("cy"))
@@ -178,13 +173,10 @@ export default class Trie extends Component {
         }
 
         console.log('creating:', node[0]);
-        console.log('parent', parent)
-        console.log('renderedNodes above' , this.state.renderedNodes[level - 1]);
-        
 
         const renderedParent = this.state.renderedNodes[level - 1][parent][1]
 
-        const circleX = availableSpace * counter - offsetX
+        const circleX = availableSpace * counter 
         const circleY = VERTICAL_SPACING * (level + 1)
 
         let line = d3.select(this.refs.svg).append("line")
@@ -200,7 +192,7 @@ export default class Trie extends Component {
           .style("fill", color);
         
         let text = d3.select(this.refs.svg).append("text")
-          .attr("x", availableSpace * counter - 10  - offsetX)
+          .attr("x", availableSpace * counter - 10)
           .attr("y", 5 + VERTICAL_SPACING * (level + 1))
           .text("'" + node[0] + "'")
           .style("font-size", "25px")
