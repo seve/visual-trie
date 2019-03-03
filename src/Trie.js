@@ -152,6 +152,9 @@ export default class Trie extends Component {
               
               const circleX = availableSpace * counter
               const circleY = VERTICAL_SPACING * (level + 1)
+
+              // TODO: To fix the line, probably have to save the child node to rendered parent object
+              //          Then when rerendering change the the x1 of the child node's line
               
               item[1].attr("cx", circleX)
               item[1].attr("cy", circleY)
