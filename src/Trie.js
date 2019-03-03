@@ -1,6 +1,10 @@
 import React, { Component } from 'react'
 import * as d3 from 'd3'
 
+const CIRCLE_RADIUS = 20;
+const VERTICAL_SPACING = 70;
+const CANVAS_WIDTH = 1000;
+
 export default class Trie extends Component {
   constructor(props) {
     super(props)
@@ -86,7 +90,7 @@ export default class Trie extends Component {
         }
         this.setState(updateDict(this.state));
         
-        this.renderNewNode(currNode, newNode, i);
+        this.renderNewNode(currNode, newNode, i + 1);
 
         
         // this.state.dict[currNode].push(newNode);
@@ -109,7 +113,7 @@ export default class Trie extends Component {
     });
   }
 
-  renderNewNode(prevNode, node, level) {
+  renderNewNode(parent, node, level) {
     // TODO: Save the coupling of the circle and text to an array
         //          this will allow me to alter the rendering of the
         //          circles after intial rendering (allowing for shifting)
@@ -133,12 +137,39 @@ export default class Trie extends Component {
         //          children width.  Then use that as 100%
         let newNumOnLevel = 1
         let counter = 1
+        let availableSpace = (CANVAS_WIDTH) / (newNumOnLevel + 1)
+        let offsetX = 0
+        console.log("renderedNodes before adding:", this.state.renderedNodes);
+        
         if(this.state.renderedNodes[level]){
-          newNumOnLevel += this.state.renderedNodes[level].length
-          this.state.renderedNodes[level].forEach((item) => {
-            item[1].attr("cx", (1000 - (40 * newNumOnLevel))/(newNumOnLevel + 1) * counter)
-            item[1].attr("cy", 50 * (level + 2))
-          })
+          console.log('length', this.state.renderedNodes[level]);
+
+          console.log('new length:', Object.keys(this.state.renderedNodes[level]).length)
+          
+          newNumOnLevel += Object.keys(this.state.renderedNodes[level]).length
+          availableSpace = (CANVAS_WIDTH) / (newNumOnLevel + 1)
+          offsetX = 0
+          const updateRenderedNodes = (state) =>{
+            state.renderedNodes[level].forEach((item) => {
+              console.log('rerendering:', item[2].text());
+
+              const renderedParent = this.state.renderedNodes[level - 1][item[4]][1]
+              
+              const circleX = availableSpace * counter - offsetX
+              const circleY = VERTICAL_SPACING * (level + 1)
+              
+              item[1].attr("cx", circleX)
+              item[1].attr("cy", circleY)
+              item[2].attr("x", availableSpace * counter - 10  - offsetX)
+              item[2].attr("y", VERTICAL_SPACING * (level + 1))
+              item[3].attr("x1", renderedParent.attr('cx')).attr("y1", renderedParent.attr('cy'))
+              item[3].attr("x2", item[1].attr("cy")).attr("y2", item[1].attr("cy"))
+
+              counter += 1
+            })
+            return { renderedNodes: state.renderedNodes }
+          }
+          this.setState(updateRenderedNodes(this.state))
         }
 
         let color = "#f3f3f3ff"
@@ -146,48 +177,79 @@ export default class Trie extends Component {
           color = "#fce5cdff"
         }
 
-        // TODO: Find the right alogrithm for finding the x values
+        console.log('creating:', node[0]);
+        console.log('parent', parent)
+        console.log('renderedNodes above' , this.state.renderedNodes[level - 1]);
+        
+
+        const renderedParent = this.state.renderedNodes[level - 1][parent][1]
+
+        const circleX = availableSpace * counter - offsetX
+        const circleY = VERTICAL_SPACING * (level + 1)
+
+        let line = d3.select(this.refs.svg).append("line")
+          .attr("x1", renderedParent.attr('cx')).attr("y1", renderedParent.attr('cy'))
+          .attr("x2", circleX).attr("y2", circleY)
+          .attr("stroke", "black")
+          .lower()
+
         let circle = d3.select(this.refs.svg).append("circle")
-          .attr("cx", (1000 - (40 * newNumOnLevel))/(newNumOnLevel + 1) * counter)
-          .attr("cy", 50 * (level + 2))
-          .attr("r", 20)
+          .attr("cx", circleX)
+          .attr("cy", circleY)
+          .attr("r", CIRCLE_RADIUS)
           .style("fill", color);
         
         let text = d3.select(this.refs.svg).append("text")
-          .attr("x", (1000 - (40 * newNumOnLevel))/(newNumOnLevel + 1) * counter)
-          .attr("y", 5 + 50 * (level + 2))
+          .attr("x", availableSpace * counter - 10  - offsetX)
+          .attr("y", 5 + VERTICAL_SPACING * (level + 1))
           .text("'" + node[0] + "'")
           .style("font-size", "25px")
           .style("fill", "black");
+
         
-        const updateRenderedNodes = ((state) => {
+
+        
+        const addToRenderedNodes = ((state) => {
           if(state.renderedNodes[level]){
-            state.renderedNodes[level].push([node, circle, text])
+            state.renderedNodes[level][node] =[node, circle, text, line, parent]
           } else {
-            state.renderedNodes[level] =[[node, circle, text]]
+            state.renderedNodes[level] = []
+            state.renderedNodes[level][node] = [node, circle, text, line, parent]
           }
           return {renderedNodes: state.renderedNodes};
         });
 
-        this.setState(updateRenderedNodes(this.state));
+        this.setState(addToRenderedNodes(this.state));
   }
 
   componentDidMount() {
-    d3.select(this.refs.svg).append("circle")
-            .attr("cx", (1000 - (40))/2 )
-            .attr("cy", 55)
-            .attr("r", 20)
-            .style("fill", "#f3f3f3ff");
-        d3.select(this.refs.svg).append("text")
-        .attr("x", (1000 - (40))/2 )
-        .attr("y", 55 )
-        .text("''")
-        .style("font-size", "25px")
-        .style("fill", "black")
-    this.addWord('seve')
-    this.addWord('save')
-    this.addWord('seven')
-    this.addWord('song')
+    const circle = d3.select(this.refs.svg).append("circle")
+      .attr("cx", CANVAS_WIDTH/2 )
+      .attr("cy", 55)
+      .attr("r", CIRCLE_RADIUS)
+      .style("fill", "#f3f3f3ff");
+    const text = d3.select(this.refs.svg).append("text")
+      .attr("x", CANVAS_WIDTH/2 - 5)
+      .attr("y", 55 )
+      .text("''")
+      .style("font-size", "25px")
+      .style("fill", "black")
+    const pushRootToRenderedNodes = (state) => {
+      state.renderedNodes[0] = []
+      state.renderedNodes[0][[false, 0, false]] = [[false, 0, false], circle, text, null, null]
+      // console.log(state.renderedNodes);
+      
+      return {renderedNodes: state.renderedNodes}
+    }
+    this.setState(pushRootToRenderedNodes(this.state))
+    this.addWord('seve');
+    this.addWord('save');
+    this.addWord('severiano');
+    this.addWord('severety');
+    this.addWord('severence');
+    this.addWord('cenz');
+    this.addWord('cello')
+
     console.log(this.state.dict);
     
   }
@@ -220,8 +282,12 @@ export default class Trie extends Component {
     console.log("render");
     
     return (
-      <svg width="1000" height="800" id="trie" ref="svg">
+      <svg width={CANVAS_WIDTH} height="800" id="trie" ref="svg" style={styles}>
       </svg>
     )
   }
+}
+
+const styles = {
+  border: '1px solid'
 }
