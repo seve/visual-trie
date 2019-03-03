@@ -158,7 +158,7 @@ export default class Trie extends Component {
               item[2].attr("x", availableSpace * counter - 10 )
               item[2].attr("y", VERTICAL_SPACING * (level + 1))
               item[3].attr("x1", renderedParent.attr('cx')).attr("y1", renderedParent.attr('cy'))
-              item[3].attr("x2", item[1].attr("cy")).attr("y2", item[1].attr("cy"))
+              item[3].attr("x2", circleX).attr("y2", circleY)
 
               counter += 1
             })
