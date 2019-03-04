@@ -91,7 +91,8 @@ export default class Trie extends Component {
         this.setState(updateDict(this.state));
         
         // TODO: Set delay to this
-        this.renderNewNode(currNode, newNode, i +1);
+        const parent = currNode;
+        setTimeout(() => this.renderNewNode(parent, newNode, i + 1), 500 * (i + 1))
 
 
         prevNode = currNode;
@@ -155,16 +156,23 @@ export default class Trie extends Component {
 
           // TODO: To fix the line, probably have to save the child node to rendered parent object
           //          Then when rerendering change the the x1 of the child node's line
-          
-          item[1].attr("cx", circleX)
-          item[1].attr("cy", circleY)
-          item[2].attr("x", availableSpace * counter - 10 )
-          item[2].attr("y", VERTICAL_SPACING * (level + 1))
-          item[3].attr("x1", renderedParent.attr('cx')).attr("y1", renderedParent.attr('cy'))
-          item[3].attr("x2", circleX).attr("y2", circleY)
+          item[1].transition().duration(500)
+            .attr("cx", circleX)
+            .attr("cy", circleY)
+          item[2].transition().duration(500)
+            .attr("x", availableSpace * counter - 10 )
+            .attr("y", VERTICAL_SPACING * (level + 1))
+
+          item[3].transition().duration(500)
+            .attr("x1", renderedParent.attr('cx'))
+            .attr("y1", renderedParent.attr('cy'))
+            .attr("x2", circleX)
+            .attr("y2", circleY)
 
           item[4].forEach((line) => {
-            line.attr("x1", circleX).attr("y1", circleY);
+            line.transition().duration(500)
+              .attr("x1", circleX)
+              .attr("y1", circleY);
           })
 
           counter += 1
@@ -179,7 +187,8 @@ export default class Trie extends Component {
       color = "#fce5cdff"
     }
 
-    console.log('creating:', node[0]);
+    console.log('creating:', node[0]);;
+    
 
     const renderedParent = this.state.renderedNodes[level - 1][parent][1]
 
@@ -244,15 +253,13 @@ export default class Trie extends Component {
       return {renderedNodes: state.renderedNodes}
     }
     this.setState(pushRootToRenderedNodes(this.state))
-
-
-    // setTimeout(() => this.addWord("seve"), 1000)
-    // setTimeout(() => this.addWord("sent"), 2000)
-    // setTimeout(() => this.addWord("search"), 3000)
-    // setTimeout(() => this.addWord("severiano"), 4000)
-
     this.addWord("seve")
-    
+    this.addWord("sophie")
+    this.addWord("severiano")
+    this.addWord("severance")
+    this.addWord("severiano")
+    this.addWord("severity")
+    this.addWord("severity")
   }
 
   autocomplete(prefix) {
