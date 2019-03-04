@@ -90,11 +90,10 @@ export default class Trie extends Component {
         }
         this.setState(updateDict(this.state));
         
-        this.renderNewNode(currNode, newNode, i + 1);
+        // TODO: Set delay to this
+        this.renderNewNode(currNode, newNode, i +1);
 
-        
-        // this.state.dict[currNode].push(newNode);
-        // this.state.dict[newNode] = [];
+
         prevNode = currNode;
         currNode = newNode;
       }
@@ -114,107 +113,114 @@ export default class Trie extends Component {
   }
 
   renderNewNode(parent, node, level) {
-    // TODO: Save the coupling of the circle and text to an array
-        //          this will allow me to alter the rendering of the
-        //          circles after intial rendering (allowing for shifting)
-        // TODO: Save the parent circle, this will allow for drawing the
-        //          line from parent to child. This needs to be svg and
-        //          not the node data. This is because the x and y will
-        //          change later if more nodes at the height are rendered.
-        //          BUT, what if the previous node wasn't just created?
-        //          How do we pass through the circle? We don't just send
-        //          the node, when inserting the rendered objects into 
-        //          renderedNodes also insert the nodes themselves so
-        //          when we go to write the line you can search for the
-        //          node in the renderedNodes collection.
-        // TODO: Maybe make a d3 render method. At render time check 
-        //          to see if there are any other nodes on the level.
-        //          if there are, change the rendering of the other nodes
-        //          then insert the new node
-        // TODO: When rendering the nodes on a level, consider the
-        //          entire level as 100% width. Once implemented consider
-        //          switching to giving each parent node a specified 
-        //          children width.  Then use that as 100%
-        let newNumOnLevel = 1
-        let counter = 1
-        let availableSpace = (CANVAS_WIDTH) / (newNumOnLevel + 1)        
-        if(this.state.renderedNodes[level]){          
-          newNumOnLevel += Object.keys(this.state.renderedNodes[level]).length
-          availableSpace = (CANVAS_WIDTH) / (newNumOnLevel + 1)
-          const updateRenderedNodes = (state) =>{
-            Object.keys(state.renderedNodes[level]).forEach((key) => {
-              const item = state.renderedNodes[level][key]
-              console.log('rerendering:', item[2].text());
-              console.log('counter:', counter);
-              
+    // Save the coupling of the circle and text to an array
+    //          this will allow me to alter the rendering of the
+    //          circles after intial rendering (allowing for shifting)
+    // Save the parent circle, this will allow for drawing the
+    //          line from parent to child. This needs to be svg and
+    //          not the node data. This is because the x and y will
+    //          change later if more nodes at the height are rendered.
+    //          BUT, what if the previous node wasn't just created?
+    //          How do we pass through the circle? We don't just send
+    //          the node, when inserting the rendered objects into 
+    //          renderedNodes also insert the nodes themselves so
+    //          when we go to write the line you can search for the
+    //          node in the renderedNodes collection.
+    // Maybe make a d3 render method. At render time check 
+    //          to see if there are any other nodes on the level.
+    //          if there are, change the rendering of the other nodes
+    //          then insert the new node
+    // When rendering the nodes on a level, consider the
+    //          entire level as 100% width. Once implemented consider
+    //          switching to giving each parent node a specified 
+    //          children width.  Then use that as 100%
+    
+    let newNumOnLevel = 1
+    let counter = 1
+    let availableSpace = (CANVAS_WIDTH) / (newNumOnLevel + 1)        
+    if(this.state.renderedNodes[level]){          
+      newNumOnLevel += Object.keys(this.state.renderedNodes[level]).length
+      availableSpace = (CANVAS_WIDTH) / (newNumOnLevel + 1)
+      const updateRenderedNodes = (state) =>{
+        Object.keys(state.renderedNodes[level]).forEach((key) => {
+          const item = state.renderedNodes[level][key]
+          console.log('rerendering:', item[2].text());
+          console.log('counter:', counter);
+          
 
-              const renderedParent = this.state.renderedNodes[level - 1][item[4]][1]
-              
-              const circleX = availableSpace * counter
-              const circleY = VERTICAL_SPACING * (level + 1)
+          const renderedParent = this.state.renderedNodes[level - 1][item[5]][1]
+          
+          const circleX = availableSpace * counter
+          const circleY = VERTICAL_SPACING * (level + 1)
 
-              // TODO: To fix the line, probably have to save the child node to rendered parent object
-              //          Then when rerendering change the the x1 of the child node's line
-              
-              item[1].attr("cx", circleX)
-              item[1].attr("cy", circleY)
-              item[2].attr("x", availableSpace * counter - 10 )
-              item[2].attr("y", VERTICAL_SPACING * (level + 1))
-              item[3].attr("x1", renderedParent.attr('cx')).attr("y1", renderedParent.attr('cy'))
-              item[3].attr("x2", circleX).attr("y2", circleY)
+          // TODO: To fix the line, probably have to save the child node to rendered parent object
+          //          Then when rerendering change the the x1 of the child node's line
+          
+          item[1].attr("cx", circleX)
+          item[1].attr("cy", circleY)
+          item[2].attr("x", availableSpace * counter - 10 )
+          item[2].attr("y", VERTICAL_SPACING * (level + 1))
+          item[3].attr("x1", renderedParent.attr('cx')).attr("y1", renderedParent.attr('cy'))
+          item[3].attr("x2", circleX).attr("y2", circleY)
 
-              counter += 1
-            })
-            return { renderedNodes: state.renderedNodes }
-          }
-          this.setState(updateRenderedNodes(this.state))
-        }
+          item[4].forEach((line) => {
+            line.attr("x1", circleX).attr("y1", circleY);
+          })
 
-        let color = "#f3f3f3ff"
-        if (node[2]) {
-          color = "#fce5cdff"
-        }
+          counter += 1
+        })
+        return { renderedNodes: state.renderedNodes }
+      }
+      this.setState(updateRenderedNodes(this.state))
+    }
 
-        console.log('creating:', node[0]);
+    let color = "#f3f3f3ff"
+    if (node[2]) {
+      color = "#fce5cdff"
+    }
 
-        const renderedParent = this.state.renderedNodes[level - 1][parent][1]
+    console.log('creating:', node[0]);
 
-        const circleX = availableSpace * counter 
-        const circleY = VERTICAL_SPACING * (level + 1)
+    const renderedParent = this.state.renderedNodes[level - 1][parent][1]
 
-        let line = d3.select(this.refs.svg).append("line")
-          .attr("x1", renderedParent.attr('cx')).attr("y1", renderedParent.attr('cy'))
-          .attr("x2", circleX).attr("y2", circleY)
-          .attr("stroke", "black")
-          .lower()
+    const circleX = availableSpace * counter 
+    const circleY = VERTICAL_SPACING * (level + 1)
 
-        let circle = d3.select(this.refs.svg).append("circle")
-          .attr("cx", circleX)
-          .attr("cy", circleY)
-          .attr("r", CIRCLE_RADIUS)
-          .style("fill", color);
-        
-        let text = d3.select(this.refs.svg).append("text")
-          .attr("x", availableSpace * counter - 10)
-          .attr("y", 5 + VERTICAL_SPACING * (level + 1))
-          .text("'" + node[0] + "'")
-          .style("font-size", "25px")
-          .style("fill", "black");
+    let line = d3.select(this.refs.svg).append("line")
+      .attr("x1", renderedParent.attr('cx')).attr("y1", renderedParent.attr('cy'))
+      .attr("x2", circleX).attr("y2", circleY)
+      .attr("stroke", "black")
+      .lower()
 
-        
+    let circle = d3.select(this.refs.svg).append("circle")
+      .attr("cx", circleX)
+      .attr("cy", circleY)
+      .attr("r", CIRCLE_RADIUS)
+      .style("fill", color)
+    
+    let text = d3.select(this.refs.svg).append("text")
+      .attr("x", availableSpace * counter - 10)
+      .attr("y", 5 + VERTICAL_SPACING * (level + 1))
+      .text("'" + node[0] + "'")
+      .style("font-size", "25px")
+      .style("fill", "black")
 
-        
-        const addToRenderedNodes = ((state) => {
-          if(state.renderedNodes[level]){
-            state.renderedNodes[level][node] =[node, circle, text, line, parent]
-          } else {
-            state.renderedNodes[level] = []
-            state.renderedNodes[level][node] = [node, circle, text, line, parent]
-          }
-          return {renderedNodes: state.renderedNodes};
-        });
+    let childLines = []
 
-        this.setState(addToRenderedNodes(this.state));
+    this.state.renderedNodes[level - 1][parent][4].push(line);
+
+    
+    const addToRenderedNodes = ((state) => {
+      if(state.renderedNodes[level]){
+        state.renderedNodes[level][node] =[node, circle, text, line, childLines, parent]
+      } else {
+        state.renderedNodes[level] = []
+        state.renderedNodes[level][node] = [node, circle, text, line, childLines, parent]
+      }
+      return {renderedNodes: state.renderedNodes};
+    });
+
+    this.setState(addToRenderedNodes(this.state));
   }
 
   componentDidMount() {
@@ -229,23 +235,23 @@ export default class Trie extends Component {
       .text("''")
       .style("font-size", "25px")
       .style("fill", "black")
+    const childLines = [];
     const pushRootToRenderedNodes = (state) => {
       state.renderedNodes[0] = []
-      state.renderedNodes[0][[false, 0, false]] = [[false, 0, false], circle, text, null, null]
-      // console.log(state.renderedNodes);
+      state.renderedNodes[0][[false, 0, false]] = [[false, 0, false], circle, text, null, childLines, null]
+    
       
       return {renderedNodes: state.renderedNodes}
     }
     this.setState(pushRootToRenderedNodes(this.state))
-    this.addWord('seve');
-    this.addWord('save');
-    this.addWord('severiano');
-    this.addWord('severety');
-    this.addWord('severence');
-    this.addWord('cenz');
-    this.addWord('cello')
 
-    console.log(this.state.dict);
+
+    // setTimeout(() => this.addWord("seve"), 1000)
+    // setTimeout(() => this.addWord("sent"), 2000)
+    // setTimeout(() => this.addWord("search"), 3000)
+    // setTimeout(() => this.addWord("severiano"), 4000)
+
+    this.addWord("seve")
     
   }
 
