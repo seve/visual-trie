@@ -12,13 +12,13 @@ export default class Trie extends Component {
       root: [false, 0, false],
       id: 1,
       dict: [],
-      renderedNodes: []
+      renderedNodes: [],
+      inputWord: ''
     };
     this.state.dict[this.state.root] = [];
   }
 
   addWord(word) {
-    let prevNode;
     let currNode = this.state.root;    
     
     const letterIter = word.split('').entries();
@@ -38,6 +38,7 @@ export default class Trie extends Component {
           if (i === word.length - 1 && !node[2]) {
             /* eslint-disable-next-line no-loop-func*/
             this.setState((state) => {
+              // TODO: Update existing node to be truncating node in visualizer
               state.dict[currNode][j] = [currNode[0], currNode[1], true];
               return { dict: state.dict }
             })
@@ -197,9 +198,13 @@ export default class Trie extends Component {
 
     let line = d3.select(this.refs.svg).append("line")
       .attr("x1", renderedParent.attr('cx')).attr("y1", renderedParent.attr('cy'))
-      .attr("x2", circleX).attr("y2", circleY)
+      .attr("x2", renderedParent.attr('cx')).attr("y2", renderedParent.attr('cy'))
       .attr("stroke", "black")
       .lower()
+
+    line.transition().duration(500)
+    .attr("x2", circleX).attr("y2", circleY)
+      
 
     let circle = d3.select(this.refs.svg).append("circle")
       .attr("cx", circleX)
@@ -253,13 +258,6 @@ export default class Trie extends Component {
       return {renderedNodes: state.renderedNodes}
     }
     this.setState(pushRootToRenderedNodes(this.state))
-    this.addWord("seve")
-    this.addWord("sophie")
-    this.addWord("severiano")
-    this.addWord("severance")
-    this.addWord("severiano")
-    this.addWord("severity")
-    this.addWord("severity")
   }
 
   autocomplete(prefix) {
@@ -285,13 +283,29 @@ export default class Trie extends Component {
     this.findWordsFromNode(words, prefix, baseNode);
     return words;
   }
+
+  handleSubmit(e) {
+    e.preventDefault()
+
+    if (this.state.inputWord.length > 0) {
+      this.addWord(this.state.inputWord)
+      this.setState({inputWord: ''})
+    }
+  }
   
   render() {
     console.log("render");
     
     return (
+      <div>
       <svg width={CANVAS_WIDTH} height="800" id="trie" ref="svg" style={styles}>
       </svg>
+      <form onSubmit={e => this.handleSubmit(e)}>
+        <input value={this.state.inputWord} onChange={e => this.setState({ inputWord: e.target.value })}
+        type="text" placeholder="New word"/>
+        <button type="submit">Add Word</button>
+      </form>
+      </div>
     )
   }
 }
