@@ -19,6 +19,7 @@ export default class Trie extends Component {
   }
 
   addWord(word) {
+    let prevNode;
     let currNode = this.state.root;    
     
     const letterIter = word.split('').entries();
