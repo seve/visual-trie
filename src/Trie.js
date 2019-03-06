@@ -9,12 +9,18 @@ export default class Trie extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      // Root node, string is false because and empty string will change to null
       root: [false, 0, false],
+      // Incrementing unique id
       id: 1,
+      // Array representing dict which will implement trie
       dict: [],
+      // Arrary representing the rendered nodes
       renderedNodes: [],
-      inputWord: ''
+      // The current word inside of the text input
+      inputWord: '',
     };
+    // Inserting the root node into the dict
     this.state.dict[this.state.root] = [];
   }
 
