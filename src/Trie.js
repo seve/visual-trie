@@ -318,5 +318,5 @@ export default class Trie extends Component {
 }
 
 const styles = {
-  border: '1px solid'
+  backgroundColor: '#ffffff',
 }
