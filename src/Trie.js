@@ -1,5 +1,6 @@
-import React, { Component } from 'react'
-import * as d3 from 'd3'
+/* eslint-disable react/jsx-filename-extension */
+import React, { Component } from 'react';
+import * as d3 from 'd3';
 
 const CIRCLE_RADIUS = 20;
 const VERTICAL_SPACING = 70;
@@ -7,7 +8,7 @@ const CANVAS_WIDTH = 1000;
 
 export default class Trie extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       // Root node, string is false because and empty string will change to null
       root: [false, 0, false],
@@ -26,44 +27,42 @@ export default class Trie extends Component {
 
   addWord(word) {
     let prevNode;
-    let currNode = this.state.root;    
-    
+    let currNode = this.state.root;
+
     const letterIter = word.split('').entries();
     let letterResult = letterIter.next();
-          
-    while (!letterResult.done) {
 
+    while (!letterResult.done) {
       const [i, letter] = letterResult.value;
       let foundLetter = false;
       const childIter = this.state.dict[currNode].entries();
       let childResult = childIter.next();
-      
-      while (!childResult.done) {
 
+      while (!childResult.done) {
         const [j, node] = childResult.value;
         if (node[0] === letter) {
           if (i === word.length - 1 && !node[2]) {
-            /* eslint-disable-next-line no-loop-func*/
+            /* eslint-disable-next-line no-loop-func */
             this.setState((state) => {
               // TODO: Update existing node to be truncating node in visualizer
               state.dict[currNode][j] = [currNode[0], currNode[1], true];
-              return { dict: state.dict }
-            })
+              return { dict: state.dict };
+            });
             // this.state.dict[currNode][j] = [currNode[0], currNode[1], true];
             prevNode = currNode;
             currNode = this.state.dict[currNode][j];
-            
-            
-            /* eslint-disable-next-line no-loop-func*/
+
+
+            /* eslint-disable-next-line no-loop-func */
             this.setState((state) => {
               state.dict[currNode] = this.state.dict[node];
               return { dict: state.dict };
-            })
+            });
             // this.state.dict[currNode] = this.state.dict[node];
             this.setState((state) => {
               delete state.dict[node];
-              return { dict: state.dict }
-            })
+              return { dict: state.dict };
+            });
             // delete this.state.dict[node];
           } else {
             prevNode = currNode;
@@ -81,26 +80,26 @@ export default class Trie extends Component {
         } else {
           newNode = [letter, this.state.id, false];
         }
-        
-        const updateId = (state) => {
-          state.id += 1
 
-          return { id: state.id }
-        }
+        const updateId = (state) => {
+          state.id += 1;
+
+          return { id: state.id };
+        };
         this.setState(updateId(this.state));
 
-        
-        /* eslint-disable-next-line no-loop-func*/
+
+        /* eslint-disable-next-line no-loop-func */
         const updateDict = (state) => {
-          state.dict[currNode].push(newNode)
+          state.dict[currNode].push(newNode);
           state.dict[newNode] = [];
-          return { dict: state.dict } 
-        }
+          return { dict: state.dict };
+        };
         this.setState(updateDict(this.state));
-        
+
         // TODO: Set delay to this
         const parent = currNode;
-        setTimeout(() => this.renderNewNode(parent, newNode, i + 1), 500 * (i + 1))
+        setTimeout(() => this.renderNewNode(parent, newNode, i + 1), 500 * (i + 1));
 
 
         prevNode = currNode;
@@ -131,146 +130,147 @@ export default class Trie extends Component {
     //          change later if more nodes at the height are rendered.
     //          BUT, what if the previous node wasn't just created?
     //          How do we pass through the circle? We don't just send
-    //          the node, when inserting the rendered objects into 
+    //          the node, when inserting the rendered objects into
     //          renderedNodes also insert the nodes themselves so
     //          when we go to write the line you can search for the
     //          node in the renderedNodes collection.
-    // Maybe make a d3 render method. At render time check 
+    // Maybe make a d3 render method. At render time check
     //          to see if there are any other nodes on the level.
     //          if there are, change the rendering of the other nodes
     //          then insert the new node
     // When rendering the nodes on a level, consider the
     //          entire level as 100% width. Once implemented consider
-    //          switching to giving each parent node a specified 
+    //          switching to giving each parent node a specified
     //          children width.  Then use that as 100%
-    
-    let newNumOnLevel = 1
-    let counter = 1
-    let availableSpace = (CANVAS_WIDTH) / (newNumOnLevel + 1)        
-    if(this.state.renderedNodes[level]){          
-      newNumOnLevel += Object.keys(this.state.renderedNodes[level]).length
-      availableSpace = (CANVAS_WIDTH) / (newNumOnLevel + 1)
-      const updateRenderedNodes = (state) =>{
+
+    let newNumOnLevel = 1;
+    let counter = 1;
+    let availableSpace = (CANVAS_WIDTH) / (newNumOnLevel + 1);
+    if (this.state.renderedNodes[level]) {
+      newNumOnLevel += Object.keys(this.state.renderedNodes[level]).length;
+      availableSpace = (CANVAS_WIDTH) / (newNumOnLevel + 1);
+      const updateRenderedNodes = (state) => {
         Object.keys(state.renderedNodes[level]).forEach((key) => {
-          const item = state.renderedNodes[level][key]
+          const item = state.renderedNodes[level][key];
           console.log('rerendering:', item[2].text());
           console.log('counter:', counter);
-          
 
-          const renderedParent = this.state.renderedNodes[level - 1][item[5]][1]
-          
-          const circleX = availableSpace * counter
-          const circleY = VERTICAL_SPACING * (level + 1)
+
+          const renderedParent = this.state.renderedNodes[level - 1][item[5]][1];
+
+          const circleX = availableSpace * counter;
+          const circleY = VERTICAL_SPACING * (level + 1);
 
           // TODO: To fix the line, probably have to save the child node to rendered parent object
           //          Then when rerendering change the the x1 of the child node's line
           item[1].transition().duration(500)
-            .attr("cx", circleX)
-            .attr("cy", circleY)
+            .attr('cx', circleX)
+            .attr('cy', circleY);
           item[2].transition().duration(500)
-            .attr("x", availableSpace * counter - 10 )
-            .attr("y", VERTICAL_SPACING * (level + 1))
+            .attr('x', availableSpace * counter - 10)
+            .attr('y', VERTICAL_SPACING * (level + 1));
 
           item[3].transition().duration(500)
-            .attr("x1", renderedParent.attr('cx'))
-            .attr("y1", renderedParent.attr('cy'))
-            .attr("x2", circleX)
-            .attr("y2", circleY)
+            .attr('x1', renderedParent.attr('cx'))
+            .attr('y1', renderedParent.attr('cy'))
+            .attr('x2', circleX)
+            .attr('y2', circleY);
 
           item[4].forEach((line) => {
             line.transition().duration(500)
-              .attr("x1", circleX)
-              .attr("y1", circleY);
-          })
+              .attr('x1', circleX)
+              .attr('y1', circleY);
+          });
 
-          counter += 1
-        })
-        return { renderedNodes: state.renderedNodes }
-      }
-      this.setState(updateRenderedNodes(this.state))
+          counter += 1;
+        });
+        return { renderedNodes: state.renderedNodes };
+      };
+      this.setState(updateRenderedNodes(this.state));
     }
 
-    let color = "#f3f3f3ff"
+    let color = '#f3f3f3ff';
     if (node[2]) {
-      color = "#fce5cdff"
+      color = '#fce5cdff';
     }
 
-    console.log('creating:', node[0]);;
+    console.log('creating:', node[0]);
     
 
-    const renderedParent = this.state.renderedNodes[level - 1][parent][1]
+    const renderedParent = this.state.renderedNodes[level - 1][parent][1];
 
-    const circleX = availableSpace * counter 
-    const circleY = VERTICAL_SPACING * (level + 1)
+    const circleX = availableSpace * counter;
+    const circleY = VERTICAL_SPACING * (level + 1);
 
-    let line = d3.select(this.refs.svg).append("line")
-      .attr("x1", renderedParent.attr('cx')).attr("y1", renderedParent.attr('cy'))
-      .attr("x2", renderedParent.attr('cx')).attr("y2", renderedParent.attr('cy'))
-      .attr("stroke", "black")
-      .lower()
+    const line = d3.select(this.refs.svg).append('line')
+      .attr('x1', renderedParent.attr('cx')).attr('y1', renderedParent.attr('cy'))
+      .attr('x2', renderedParent.attr('cx'))
+.attr('y2', renderedParent.attr('cy'))
+      .attr('stroke', 'black')
+      .lower();
 
     line.transition().duration(500)
-    .attr("x2", circleX).attr("y2", circleY)
-      
+      .attr('x2', circleX).attr('y2', circleY);
 
-    let circle = d3.select(this.refs.svg).append("circle")
-      .attr("cx", circleX)
-      .attr("cy", circleY)
-      .attr("r", CIRCLE_RADIUS)
-      .style("fill", color)
-    
-    let text = d3.select(this.refs.svg).append("text")
-      .attr("x", availableSpace * counter - 10)
-      .attr("y", 5 + VERTICAL_SPACING * (level + 1))
-      .text("'" + node[0] + "'")
-      .style("font-size", "25px")
-      .style("fill", "black")
 
-    let childLines = []
+    const circle = d3.select(this.refs.svg).append('circle')
+      .attr('cx', circleX)
+      .attr('cy', circleY)
+      .attr('r', CIRCLE_RADIUS)
+      .style('fill', color);
+
+    const text = d3.select(this.refs.svg).append('text')
+      .attr('x', availableSpace * counter - 10)
+      .attr('y', 5 + VERTICAL_SPACING * (level + 1))
+      .text(`'${  node[0]  }'`)
+      .style('font-size', '25px')
+      .style('fill', 'black');
+
+    const childLines = [];
 
     this.state.renderedNodes[level - 1][parent][4].push(line);
 
-    
+
     const addToRenderedNodes = ((state) => {
-      if(state.renderedNodes[level]){
-        state.renderedNodes[level][node] =[node, circle, text, line, childLines, parent]
+      if (state.renderedNodes[level]) {
+        state.renderedNodes[level][node] = [node, circle, text, line, childLines, parent];
       } else {
-        state.renderedNodes[level] = []
-        state.renderedNodes[level][node] = [node, circle, text, line, childLines, parent]
+        state.renderedNodes[level] = [];
+        state.renderedNodes[level][node] = [node, circle, text, line, childLines, parent];
       }
-      return {renderedNodes: state.renderedNodes};
+      return { renderedNodes: state.renderedNodes };
     });
 
     this.setState(addToRenderedNodes(this.state));
   }
 
   componentDidMount() {
-    const circle = d3.select(this.refs.svg).append("circle")
-      .attr("cx", CANVAS_WIDTH/2 )
-      .attr("cy", 55)
-      .attr("r", CIRCLE_RADIUS)
-      .style("fill", "#f3f3f3ff");
-    const text = d3.select(this.refs.svg).append("text")
-      .attr("x", CANVAS_WIDTH/2 - 5)
-      .attr("y", 55 )
+    const circle = d3.select(this.refs.svg).append('circle')
+      .attr('cx', CANVAS_WIDTH / 2)
+      .attr('cy', 55)
+      .attr('r', CIRCLE_RADIUS)
+      .style('fill', '#f3f3f3ff');
+    const text = d3.select(this.refs.svg).append('text')
+      .attr('x', CANVAS_WIDTH / 2 - 5)
+      .attr('y', 55)
       .text("''")
-      .style("font-size", "25px")
-      .style("fill", "black")
+      .style('font-size', '25px')
+      .style('fill', 'black');
     const childLines = [];
     const pushRootToRenderedNodes = (state) => {
-      state.renderedNodes[0] = []
-      state.renderedNodes[0][[false, 0, false]] = [[false, 0, false], circle, text, null, childLines, null]
-    
-      
-      return {renderedNodes: state.renderedNodes}
-    }
-    this.setState(pushRootToRenderedNodes(this.state))
+      state.renderedNodes[0] = [];
+      state.renderedNodes[0][[false, 0, false]] = [[false, 0, false], circle, text, null, childLines, null];
+
+
+      return { renderedNodes: state.renderedNodes };
+    };
+    this.setState(pushRootToRenderedNodes(this.state));
   }
 
   autocomplete(prefix) {
     const words = [];
     let currNode = this.state.root;
-    console.log("currNode", currNode);
+    console.log('currNode', currNode);
 
     prefix.split('').forEach((letter) => {
       let foundLetter = false;
@@ -283,7 +283,7 @@ export default class Trie extends Component {
       });
       if (!foundLetter) {
         console.error('PREFIX NOT IN TRIE');
-        return words; 
+        return words;
       }
     });
     const baseNode = currNode;
@@ -292,31 +292,62 @@ export default class Trie extends Component {
   }
 
   handleSubmit(e) {
-    e.preventDefault()
+    e.preventDefault();
 
     if (this.state.inputWord.length > 0) {
-      this.addWord(this.state.inputWord)
-      this.setState({inputWord: ''})
+      this.addWord(this.state.inputWord);
+      this.setState({ inputWord: '' });
     }
   }
-  
+
   render() {
-    console.log("render");
-    
+    const { inputWord } = this.state;
+    const canvasStyle = {
+      backgroundColor: '#ffffff',
+      borderRadius: '8px',
+      boxShadow: '0px 6px 12px 4px rgba(0,0,0,0.57)',
+      webkitBoxShadow: '0px 6px 12px 4px rgba(0,0,0,0.57)',
+      mozBoxShadow: '0px 6px 12px 4px rgba(0,0,0,0.57)',
+    };
+    const formStyle = {
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'center',
+    };
+    const formItemsStyle = {
+      marginTop: '16px',
+      width: '30%',
+      display: 'flex',
+      height: '3vh',
+    };
+    const inputStyle = {
+      width: '70%',
+      textAlign: 'center',
+      borderRadius: '4px',
+    };
+    const buttonStyle = {
+      width: '27%',
+      height: '105%',
+      marginLeft: '3%',
+      borderRadius: '4px',
+    };
     return (
       <div>
-      <svg width={CANVAS_WIDTH} height="800" id="trie" ref="svg" style={styles}>
-      </svg>
-      <form onSubmit={e => this.handleSubmit(e)}>
-        <input value={this.state.inputWord} onChange={e => this.setState({ inputWord: e.target.value })}
-        type="text" placeholder="New word"/>
-        <button type="submit">Add Word</button>
-      </form>
+        <svg width={CANVAS_WIDTH} height="800" id="trie" ref={(c) => { this.svg = c; }} style={canvasStyle} />
+        <form style={formStyle} onSubmit={e => this.handleSubmit(e)}>
+          <div style={formItemsStyle}>
+            <input
+              style={inputStyle}
+              value={inputWord}
+              onChange={e => this.setState({ inputWord: e.target.value })}
+              type="text"
+              placeholder="New word"
+            />
+            <button style={buttonStyle} type="submit">Add Word</button>
+          </div>
+        </form>
       </div>
-    )
+    );
   }
 }
 
-const styles = {
-  backgroundColor: '#ffffff',
-}
