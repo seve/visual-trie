@@ -202,7 +202,7 @@ export default class Trie extends Component {
     const circleX = availableSpace * counter;
     const circleY = VERTICAL_SPACING * (level + 1);
 
-    const line = d3.select(this.refs.svg).append('line')
+    const line = d3.select(this.svg).append('line')
       .attr('x1', renderedParent.attr('cx')).attr('y1', renderedParent.attr('cy'))
       .attr('x2', renderedParent.attr('cx'))
 .attr('y2', renderedParent.attr('cy'))
@@ -213,13 +213,13 @@ export default class Trie extends Component {
       .attr('x2', circleX).attr('y2', circleY);
 
 
-    const circle = d3.select(this.refs.svg).append('circle')
+    const circle = d3.select(this.svg).append('circle')
       .attr('cx', circleX)
       .attr('cy', circleY)
       .attr('r', CIRCLE_RADIUS)
       .style('fill', color);
 
-    const text = d3.select(this.refs.svg).append('text')
+    const text = d3.select(this.svg).append('text')
       .attr('x', availableSpace * counter - 10)
       .attr('y', 5 + VERTICAL_SPACING * (level + 1))
       .text(`'${  node[0]  }'`)
@@ -245,12 +245,12 @@ export default class Trie extends Component {
   }
 
   componentDidMount() {
-    const circle = d3.select(this.refs.svg).append('circle')
+    const circle = d3.select(this.svg).append('circle')
       .attr('cx', CANVAS_WIDTH / 2)
       .attr('cy', 55)
       .attr('r', CIRCLE_RADIUS)
       .style('fill', '#f3f3f3ff');
-    const text = d3.select(this.refs.svg).append('text')
+    const text = d3.select(this.svg).append('text')
       .attr('x', CANVAS_WIDTH / 2 - 5)
       .attr('y', 55)
       .text("''")
@@ -306,8 +306,8 @@ export default class Trie extends Component {
       backgroundColor: '#ffffff',
       borderRadius: '8px',
       boxShadow: '0px 6px 12px 4px rgba(0,0,0,0.57)',
-      webkitBoxShadow: '0px 6px 12px 4px rgba(0,0,0,0.57)',
-      mozBoxShadow: '0px 6px 12px 4px rgba(0,0,0,0.57)',
+      WebkitBoxShadow: '0px 6px 12px 4px rgba(0,0,0,0.57)',
+      MozBoxShadow: '0px 6px 12px 4px rgba(0,0,0,0.57)',
     };
     const formStyle = {
       display: 'flex',
